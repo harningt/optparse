@@ -204,7 +204,7 @@ long_fallback(struct optparse *options,
               int *longindex)
 {
     int result;
-    char optstring[1000];
+    char optstring[96 * 3 + 1]; /* 96 ASCII printable characters */
     optstring_from_long(longopts, optstring);
     result = optparse(options, optstring);
     if (longindex != 0) {
@@ -226,6 +226,9 @@ optparse_long(struct optparse *options,
     int i;
     char *option = options->argv[options->optind];
     if (option == 0) {
+        return -1;
+    } else if (is_dashdash(option)) {
+        options->optind++; /* consume "--" */
         return -1;
     } else if (is_shortopt(option)) {
         return long_fallback(options, longopts, longindex);
